@@ -2,9 +2,11 @@ pb = {}
 import random
 import string
 import time
+import bisect
 for i in range(100000):
     phone = str(random.randint(1000000,9999999))
     if phone in pb:
+        i -= 1
         continue
     else:
         name = (random.choice(string.ascii_uppercase)) + \
@@ -20,42 +22,61 @@ my_file.close()
 
 def file_to_dict(x):
     file = open(x,"r")
-    phobok = {}
+    phonebook = {}
     for stroka in file:
         stroka = stroka.split()
         phon_numb = int(stroka[0])
         name = stroka[-1]
-        phobok[phon_numb] = name
-    return phobok
+        phonebook[phon_numb] = name
+    return phonebook
         
 def file_to_list(x):
     file = open(x,"r")
-    phobook = []
+    phonebook = []
     for stroka in file:
         stroka = stroka.split()
         phon_numb = int(stroka[0])
         name = stroka[-1]
         tupl = (phon_numb,name)
-        phobook.append(tupl)
-    return phobook
+        phonebook.append(tupl)
+    return phonebook
 def file_to_list_sort(x):
     file = open(x,"r")
-    phoobook = []
+    phonebook = []
     for stroka in file:
         stroka = stroka.split()
         phon_numb = int(stroka[0])
         name = stroka[-1]
         tupl = (phon_numb,name)
-        phoobook.append(tupl)
-    phoobook = sorted(phoobook, key = lambda x : x[0])
-    return phoobook
-def compare(f,g,h,inp):
+        phonebook.append(tupl)
+    phonebook = sorted(phonebook, key = lambda x : x[0])
+    return phonebook
+def get_name_d(phone):
+    n = file_to_dict("phonebook.txt")
+    if phone not in n:
+        return "Not Found"
+    else:
+        return n[phone]
+def get_name_l(phone):
+    m = file_to_list("phonebook.txt")
+    n = next((x for x in m if phone in x),None)
+    return n[-1]
+def get_name_sort_bin(phone):
+    q = file_to_list_sort("phonebook.txt")
+    phonies = [x[0] for x in q]
+    n = q[bisect.bisect_left(phonies,phone)]
+    return n[-1]
+def compare(f,g,h):
     i = 0
     t1 = 0
     t2 = 0
     t3 = 0
+    m = file_to_list("phonebook.txt")
+    phones = [x[0] for x in file_to_list("phonebook.txt")]
     while i<1000:
         last_time = time.clock()
+        n = random.randint(1,len(phones))
+        inp = phones[n]
         f(inp)
         t1 += time.clock() - last_time
         last_time = time.clock()
@@ -66,4 +87,3 @@ def compare(f,g,h,inp):
         t3 += time.clock() - last_time
         i += 1
     print(t3 / t2, t2 / t1, t3/t1)
-compare(file_to_dict,file_to_list,file_to_list_sort,"phonebook.txt")
