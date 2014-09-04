@@ -1,7 +1,5 @@
-def sieve(n):
-    just = [] #По шагам алгоритма Эратосфена: 
-    for i in range(2,n+1): #создаём список чисел вплоть до n
-        just.append(i)
+def sieve(n): #По шагам алгоритма Эратосфена: 
+    just = list(range(2,n+1)) 
     pr = 2
     result = [2,]
     while pr <= n: #Убираем из нашего списка все числа 
