@@ -3,10 +3,9 @@ import random
 import string
 import time
 import bisect
-for i in range(100000):
+while len(pb) < 100000:
     phone = str(random.randint(1000000,9999999))
     if phone in pb:
-        i -= 1
         continue
     else:
         name = (random.choice(string.ascii_uppercase)) + \
