@@ -81,8 +81,15 @@ class Character:
         del self.deck[take]
     def hand_val(self):
         total = 0
+        ace_cnt = 0
         for i in range(len(self.hand)):
-            total += Card.value(self.hand[i])
+            if Card.value(self.hand[i]) == 11:
+                ace_cnt += 1
+                total += Card.value(self.hand[i])
+            else:
+                total += Card.value(self.hand[i])
+        if total > 21:
+            total = total - 10 * ace_cnt
         return total
     def show_hand(self):
         print("{} hand is\n".format(self.name))
@@ -127,30 +134,35 @@ class Player(Character):
     def result(self):
         """Добирает дилеру карты в руку, сравнивает с картами игрока
         и выдаёт результат, изменняя банк игрока в зависимости от исхода"""
-        self.show_hand()
-        if self.hand_val() > 21:
-            print("Sorry, that's too much, you lost {0}, mr. {1}."\
-                  .format(self.cur_bet, self.name))
+        if self.hand_val() == 0:
+            print("You need to start a game first and draw a card.\n")
         else:
-            while d.hand_val() < 17:
-                d.draw_card_deck()
-            if d.hand_val() > 21:
-                print("You win {}! \n".format(self.cur_bet))
-                self.bank = self.bank + self.cur_bet * 2
-            elif self.hand_val() ==  d.hand_val():
-                print("Deuce! You get your bet back!\n")
-                self.bank = self.bank + self.cur_bet
-            elif self.hand_val() == 21:
-                print("Blackjack! You won {0}, mr. {1}!"\
-                      .format(self.cur_bet * 1.5, self.name))
-                self.bank = self.bank + self.cur_bet * 2.5
-            elif self.hand_val() > d.hand_val():
-                print("You win {}! \n".format(self.cur_bet))
-                self.bank = self.bank + self.cur_bet * 2
+            self.show_hand()
+            if self.hand_val() > 21:
+                print("Sorry, that's too much, you lost {0}, mr. {1}."\
+                      .format(self.cur_bet, self.name))
             else:
-                print("Casino wins. You lost {}\n".format(self.cur_bet))
-        d.hand = []
+                while d.hand_val() < 17:
+                    d.draw_card_deck()
+                d.show_hand()
+                if d.hand_val() > 21:
+                    print("You win {}! \n".format(self.cur_bet))
+                    self.bank = self.bank + self.cur_bet * 2
+                elif self.hand_val() ==  d.hand_val():
+                    print("Deuce! You get your bet back!\n")
+                    self.bank = self.bank + self.cur_bet
+                elif self.hand_val() == 21:
+                    print("Blackjack! You won {0}, mr. {1}!"\
+                          .format(self.cur_bet * 1.5, self.name))
+                    self.bank = self.bank + self.cur_bet * 2.5
+                elif self.hand_val() > d.hand_val():
+                    print("You win {}! \n".format(self.cur_bet))
+                    self.bank = self.bank + self.cur_bet * 2
+                else:
+                    print("Casino wins. You lost {}\n".format(self.cur_bet))
+            d.hand = []
         self.hand = []
+        self.cur_bet = 0
     def help(self):
         #список команд с описанием
         print("Start - starts a new blackjack round\n")
