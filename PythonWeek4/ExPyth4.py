@@ -1,6 +1,6 @@
 from random import randint
-class Card(object):
-    """Задаём карты, с возможностью сгенерить карту,
+class Card:
+    """Карты, с возможностью сгенерить случайную,
         вычислением очков для 21, сравнением карт и
         представлением их пользователю"""
     suit_var = ["Spades","Hearts", "Clubs", "Diamonds"]
@@ -30,9 +30,9 @@ class Card(object):
     def __str__(self):
         return "{0} of {1}".format(self.rank,self.suit)
 class Deck(list):
-    """Задаём колоду, с генератором случайной стандартной колоды,
+    """Колода, с генератором случайной стандартной колоды,
         возможностью умножения на число для игры в 21
-        с несколькими колодами (в игре не реализовано"""
+        с несколькими колодами (в игре не реализовано)"""
     deck_quant = 1
     def __append__(self,value):
         if isinstance(value,Card):
@@ -66,14 +66,14 @@ class Deck(list):
             n = 0
             continue
         return mult_deck
-class Character(object):
+class Character:
     """Задаёт игроков (для дилера и игрока), с вытягиванием карты,
          оценкой руки и представлением руки пользователю"""
     name = "Dealer"
     deck = Deck.generate_new_deck()
     def __init__(self):
         self.hand = []
-    def draw_card_deck(self,deck):
+    def draw_card_deck(self):
         take = randint(0,len(self.deck) - 1)
         self.hand.append(self.deck[take])        
         print("{0} draws {1} \n".format(self.name,self.deck[take]))
@@ -89,133 +89,74 @@ class Character(object):
             print(str(self.hand[i]) + "\n")
 d = Character()
 class Player(Character):
-    bank = 100
-    #деньги на руках
-    cur_bet = 0
-    #текущая ставка
+    def __init__(self,bank,cur_bet):
+        self.hand = []
+        self.bank = bank
+        self.cur_bet = cur_bet
     name = ""
-    """За неименим лучшего в голове, все случаи игры (по правилам из вики)
-        со всеми коряками правил для упрощения вынесены в отдельные методы
-        для упрощения чтения"""
     def bank_show(self):
         print(self.bank)
-    def blackjack(self):
-        #для блекджека
-        print("Blackjack! You won {0}, mr. {1}!".\
-              format(cur_bet * 1.5, self.name))
-        self.bank = self.bank + self.cur_bet * 2.5
-    def bj_retreat(self):
-        #для ситуации с пасом при 10 и обычного выигрыша
-        print("Alrighty, you win {0}, mr. {1}!".\
-              format(self.cur_bet, self.name))
-        self.bank = self.bank + self.cur_bet * 2
-    def deal_win(self):
-        print("Casino wins.")
-    def much(self):
-        print("Sorry, that's too much, you lost {0}, mr. {1}.".\
-              format(self.cur_bet, self.name))
     def leave(self):
         print\
-("Congratulations! {0} wishes to return to the real world with {1} imaginary coins! \n".\
-              format(self.name,self.bank))
+("Congratulations! {0} wishes to return to the real world with {1} imaginary coins! \n"\
+ .format(self.name,self.bank))
         p.bank = 0
-    def deal_good(self):
-        #расклад ситуации с 10 у дилера
-        while True:
-            n = input("Would you like to test your luck? print y or n")
-            if n == "y":
-                while d.hand_val < 17:
-                    d.draw_card_deck(self.deck)
-                    input()
-                    if d.hand_val == 21:
-                        d.show_hand()
-                        print("Duece! You get your bet back!")
-                        self.bank = self.bank + self.cur_bet
-                        break
-                    else:
-                        d.show_hand()
-                        self.blackjack
-                        break
-                    break
-            elif n == "n":
-                self.bj_retreat()
-                break
-            else:
-                print("I'm sorry, mr. {}, what'd  you mean?".\
-                      format(self.name))
-                continue
-    def bad_both(self):
-        #расписывана ситуация "не зашло"
-        while True:
-            n = input("Would you like to draw another card? print y or n")
-            if n == "y":
-                self.draw_card_deck(self.deck)
-                input()
-                if self.hand_val() > 21:
-                    self.show_hand()
-                    self.much()
-                    break
-                else:
-                    continue
-            elif n == "n":
-                while d.hand_val() < 17:
-                    d.draw_card_deck(self.deck)
-                    input()
-                    continue
-                d.show_hand()
-                if d.hand_val() > 21:
-                    self.bj_retreat()
-                    break
-                elif self.hand_val() > d.hand_val():
-                    self.bj_retreat()
-                    break
-                elif self.hand_val() == d.hand_val():
-                    print("Duece! You get your bet back!")
-                    self.bank = self.bank + self.cur_bet
-                    break
-                else:
-                    self.deal_win()
-                    break
-            else:
-                print("I'm sorry, mr. {}, what'd  you mean?".\
-                      format(self.name))
-                continue
-
     def start_round(self):
-        #общий цикл для игры, запускающий подварианты
         d.deck = Deck.generate_new_deck()
+        self.hand = []
+        d.hand = []
         self.cur_bet = int(input("Enter your bet: \n"))
-        if self.cur_bet > self.bank or self.bank == 0:
-            print("Inner voice of reason: you don't have enough money, just {} \n").\
-                         format(self.bank)
+        while self.cur_bet > self.bank or self.bank == 0:
+            print("Inner voice of reason: you don't have enough money, only {} available \n"\
+                  .format(self.bank))   
+            self.cur_bet = int(input("Enter your bet: \n"))
+            continue
+        self.bank = self.bank - self.cur_bet
+        d.draw_card_deck()
+        print("To draw a card print draw\n")
+        print("To stop drawing and finish the round print result\n")
+    def result(self):
+        self.show_hand()
+        if self.hand_val() > 21:
+            print("Sorry, that's too much, you lost {0}, mr. {1}."\
+                  .format(self.cur_bet, self.name))
         else:
-            self.bank = self.bank - self.cur_bet
-            self.draw_card_deck(self.deck)
-            input()
-            d.draw_card_deck(self.deck)
-            input()
-            self.draw_card_deck(self.deck)
-            input()
-            self.show_hand()
-            input()
-            if self.hand_val == 21 and d.hand_val < 10:
-                self.blackjack()
-            elif p.hand_val == 21:
-                self.deal_good()
+            while d.hand_val() < 17:
+                d.draw_card_deck()
+            if d.hand_val() > 21:
+                print("You win {}! \n".format(self.cur_bet))
+                self.bank = self.bank + self.cur_bet * 2
+            elif self.hand_val() ==  d.hand_val():
+                print("Deuce! You get your bet back!\n")
+                self.bank = self.bank + self.cur_bet
+            elif self.hand_val() == 21:
+                print("Blackjack! You won {0}, mr. {1}!"\
+                      .format(self.cur_bet * 1.5, self.name))
+                self.bank = self.bank + self.cur_bet * 2.5
+            elif self.hand_val() > d.hand_val():
+                print("You win {}! \n".format(self.cur_bet))
+                self.bank = self.bank + self.cur_bet * 2
             else:
-                 self.bad_both()
-            self.hand = []
-            d.hand = []
+                print("Casino wins. You lost {}\n".format(self.cur_bet))
+        d.hand = []
+        self.hand = []
     def help(self):
         #список команд с описанием
         print("Start - starts a new blackjack round\n")
+        print("Draw - draws a new card\n")
+        print("Hand - displays your current hand\n")
+        print("Dealer - displays dealer's hand\n")
+        print("Result - stop drawing and see if you could win the dealer\n")
         print("Leave - leave the casino with your money\n")
         print("Bank - displays your money left\n")
         print("Help - displays available commands")
 
-p = Player()
-x = p.bank
+p = Player(100,0)
 Commands = {"start" : p.start_round,
+            "draw" : p.draw_card_deck,
+            "hand" : p.show_hand,
+            "dealer" : d.show_hand,
+            "result" : p.result,
             "leave" : p.leave,
             "bank" : p.bank_show,
             "help" : p.help,
@@ -223,9 +164,7 @@ Commands = {"start" : p.start_round,
 
 p.name = input("Welcome to Blackjack 0.1a. What is your name, sir?\n")
 print("To see commands - print help\n")
-print\
-("Don't forget to input something or press Enter to continue the game")
-while(p.bank > 0):
+while(p.bank >= 0):
     #тут спасибо Balau за решение
   line = input("> ")
   args = line.split()
@@ -239,8 +178,6 @@ while(p.bank > 0):
     if not commandFound:
       print("Incorrect command")
 print("Thank you for playing the game!")
- 
-
 
 
                     
