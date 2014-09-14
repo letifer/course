@@ -1,4 +1,5 @@
 from random import randint
+import sys
 class Card:
     """Карты, с возможностью сгенерить случайную,
         вычислением очков для 21, сравнением карт и
@@ -102,6 +103,7 @@ class Player(Character):
 ("Congratulations! {0} wishes to return to the real world with {1} imaginary coins! \n"\
  .format(self.name,self.bank))
         p.bank = 0
+        sys.exit(0)
     def start_round(self):
         """Начинает новый раунд, создавая новую колоду и обнуляя руки,
         игрок самостоятельно берёт карты и решает,когда закончить раунд"""
@@ -109,15 +111,19 @@ class Player(Character):
         self.hand = []
         d.hand = []
         self.cur_bet = int(input("Enter your bet: \n"))
-        while self.cur_bet > self.bank or self.bank == 0:
-            print("Inner voice of reason: you don't have enough money, only {} available \n"\
+        if self.bank == 0:
+            print("You got kicked out of casino for having no money!")
+            self.leave()
+        else:
+            while self.cur_bet > self.bank :
+                print("Inner voice of reason: you don't have enough money, only {} available \n"\
                   .format(self.bank))   
-            self.cur_bet = int(input("Enter your bet: \n"))
-            continue
-        self.bank = self.bank - self.cur_bet
-        d.draw_card_deck()
-        print("To draw a card print draw\n")
-        print("To stop drawing and finish the round print result\n")
+                self.cur_bet = int(input("Enter your bet: \n"))
+                continue
+            self.bank = self.bank - self.cur_bet
+            d.draw_card_deck()
+            print("To draw a card print draw\n")
+            print("To stop drawing and finish the round print result\n")
     def result(self):
         """Добирает дилеру карты в руку, сравнивает с картами игрока
         и выдаёт результат, изменняя банк игрока в зависимости от исхода"""
