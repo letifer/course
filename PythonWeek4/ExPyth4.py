@@ -89,6 +89,7 @@ class Character:
             print(str(self.hand[i]) + "\n")
 d = Character()
 class Player(Character):
+    """Игрок, с самой игрой"""
     def __init__(self,bank,cur_bet):
         self.hand = []
         self.bank = bank
@@ -102,6 +103,8 @@ class Player(Character):
  .format(self.name,self.bank))
         p.bank = 0
     def start_round(self):
+        """Начинает новый раунд, создавая новую колоду и обнуляя руки,
+        игрок самостоятельно берёт карты и решает,когда закончить раунд"""
         d.deck = Deck.generate_new_deck()
         self.hand = []
         d.hand = []
@@ -116,6 +119,8 @@ class Player(Character):
         print("To draw a card print draw\n")
         print("To stop drawing and finish the round print result\n")
     def result(self):
+        """Добирает дилеру карты в руку, сравнивает с картами игрока
+        и выдаёт результат, изменняя банк игрока в зависимости от исхода"""
         self.show_hand()
         if self.hand_val() > 21:
             print("Sorry, that's too much, you lost {0}, mr. {1}."\
